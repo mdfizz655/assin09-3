@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import axios from '../../../../lib/axios';
+import { api, authApi } from "../../../lib/axios";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { FaUserFriends, FaMapMarkerAlt, FaCogs, FaGasPump, FaStar } from "react-icons/fa";
@@ -12,14 +12,13 @@ export default function CarDetailsPage() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const [car, setCar] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [booking, setBooking] = useState(false);
+  const [car, setCar]           = useState(null);
+  const [isModalOpen, setModal] = useState(false);
+  const [loading, setLoading]   = useState(true);
+  const [booking, setBooking]   = useState(false);
 
   useEffect(() => {
-    api
-      .get(`/cars/${id}`)
+    api.get(`/cars/${id}`)
       .then((res) => { setCar(res.data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [id]);
@@ -30,42 +29,37 @@ export default function CarDetailsPage() {
     setBooking(true);
 
     const bookingInfo = {
-      carId: car._id,
-      carName: car.name,
-      price: car.dailyPrice,
-      image: car.image,
-      userEmail: session.user?.email,
-      bookingDate: new Date().toLocaleDateString(),
+      carId:        car._id,
+      carName:      car.name,
+      price:        car.dailyPrice,
+      image:        car.image,
+      userEmail:    session.user?.email,
       driverNeeded: e.target.driver.value,
-      specialNote: e.target.note.value,
-      status: "Confirmed",
+      specialNote:  e.target.note.value,
+      status:       "Confirmed",
     };
 
     try {
       const res = await authApi(session.accessToken).post("/bookings", bookingInfo);
       if (res.data.insertedId) {
         toast.success("Booked Successfully!");
-        setIsModalOpen(false);
+        setModal(false);
         router.push("/my-bookings");
       }
-    } catch {
-      toast.error("Booking failed. Please try again.");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Booking failed. Please try again.");
     } finally {
       setBooking(false);
     }
   };
 
   if (loading)
-    return (
-      <div className="flex justify-center py-24">
-        <div className="spinner" />
-      </div>
-    );
+    return <div className="flex justify-center py-24"><div className="spinner" /></div>;
 
   if (!car)
     return (
       <div className="text-center py-24">
-        <div className="text-5xl mb-4">😕</div>
+        <p className="text-5xl mb-4">😕</p>
         <p className="text-xl font-bold text-gray-500">Car not found!</p>
       </div>
     );
@@ -74,7 +68,7 @@ export default function CarDetailsPage() {
     <div className="py-10 px-4 max-w-6xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
-        <a href="/cars" className="hover:text-blue-600 transition-colors">Cars</a>
+        <a href="/cars" className="hover:text-blue-600">Cars</a>
         <span>/</span>
         <span className="text-gray-700 font-medium">{car.name}</span>
       </div>
@@ -82,59 +76,60 @@ export default function CarDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Image */}
         <div className="relative w-full h-[360px] rounded-2xl overflow-hidden shadow-xl">
-          <Image src={car.image} alt={car.name} fill className="object-cover" sizes="(max-width:1024px) 100vw, 50vw" />
+          <Image src={car.image} alt={car.name} fill className="object-cover" sizes="(max-width:1024px) 100vw,50vw" />
           <div className="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
             {car.type}
           </div>
+          {car.availability === "Unavailable" && (
+            <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              Unavailable
+            </div>
+          )}
         </div>
 
-        {/* Details */}
-        <div className="flex flex-col justify-between space-y-6">
+        {/* Info */}
+        <div className="flex flex-col justify-between space-y-5">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{car.name}</h1>
-            <p className="flex items-center gap-2 text-gray-500 text-sm font-medium mb-4">
+            <p className="flex items-center gap-2 text-gray-500 text-sm mb-4">
               <FaMapMarkerAlt className="text-blue-500" /> {car.location}
             </p>
-            <div className="flex gap-2 mb-5">
+            <div className="flex gap-1 mb-4">
               {[1,2,3,4,5].map(i => <FaStar key={i} className="text-yellow-400 text-sm" />)}
               <span className="text-gray-400 text-xs ml-1">(4.8)</span>
             </div>
           </div>
 
-          {/* Specs */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
-              <FaUserFriends className="mx-auto text-blue-600 text-xl mb-2" />
-              <p className="font-bold text-sm text-gray-800">{car.capacity} Seats</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
-              <FaCogs className="mx-auto text-blue-600 text-xl mb-2" />
-              <p className="font-bold text-sm text-gray-800">Automatic</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
-              <FaGasPump className="mx-auto text-blue-600 text-xl mb-2" />
-              <p className="font-bold text-sm text-gray-800">Petrol</p>
-            </div>
+            {[
+              { icon: <FaUserFriends />, label: `${car.capacity} Seats` },
+              { icon: <FaCogs />,        label: "Automatic" },
+              { icon: <FaGasPump />,     label: "Petrol" },
+            ].map((s, i) => (
+              <div key={i} className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
+                <div className="text-blue-600 text-xl mb-2 flex justify-center">{s.icon}</div>
+                <p className="font-bold text-sm text-gray-800">{s.label}</p>
+              </div>
+            ))}
           </div>
 
           {car.description && (
             <p className="text-gray-500 text-sm leading-relaxed">{car.description}</p>
           )}
 
-          {/* Booking count */}
           {car.booking_count > 0 && (
-            <p className="text-xs text-gray-400 font-medium">
+            <p className="text-xs text-gray-400">
               🔥 Booked {car.booking_count} time{car.booking_count !== 1 ? "s" : ""}
             </p>
           )}
 
-          <div className="pt-5 border-t border-gray-100 flex justify-between items-center">
+          <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
             <div>
               <span className="text-3xl font-black text-blue-600">${car.dailyPrice}</span>
               <span className="text-gray-400 text-sm"> / day</span>
             </div>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setModal(true)}
               className="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg"
             >
               Book Now
@@ -161,14 +156,18 @@ export default function CarDetailsPage() {
 
             <form onSubmit={handleBooking} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Driver</label>
-                <select name="driver" className="w-full p-3 text-sm border border-gray-200 rounded-xl font-medium outline-none focus:border-blue-500">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">
+                  Driver Needed
+                </label>
+                <select name="driver" className="w-full p-3 text-sm border border-gray-200 rounded-xl outline-none focus:border-blue-500">
                   <option value="No">No Driver</option>
-                  <option value="Yes">Need Driver (+$20/day)</option>
+                  <option value="Yes">Yes, Need Driver (+$20/day)</option>
                 </select>
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">Special Note (optional)</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1 block">
+                  Special Note (optional)
+                </label>
                 <textarea
                   name="note"
                   rows="3"
@@ -179,15 +178,15 @@ export default function CarDetailsPage() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-gray-100 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all"
+                  onClick={() => setModal(false)}
+                  className="flex-1 bg-gray-100 py-3 rounded-xl font-bold text-sm hover:bg-gray-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={booking}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all disabled:opacity-60"
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-60"
                 >
                   {booking ? "Booking..." : "Confirm Booking"}
                 </button>

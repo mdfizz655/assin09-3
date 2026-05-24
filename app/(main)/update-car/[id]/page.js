@@ -2,21 +2,23 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { api, authApi } from "@/lib/axios";
+import { api, authApi } from "../../../lib/axios";
 import { toast } from "react-hot-toast";
 
 const INPUT = "w-full p-3 text-sm rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all bg-white";
 const LABEL = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5";
 
 export default function UpdateCarPage() {
-  const { id }       = useParams();
+  const { id }            = useParams();
   const { data: session } = useSession();
-  const router       = useRouter();
+  const router            = useRouter();
   const [car, setCar]     = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    api.get(`/cars/${id}`).then((res) => setCar(res.data)).catch(() => toast.error("Car not found"));
+    api.get(`/cars/${id}`)
+      .then((res) => setCar(res.data))
+      .catch(() => toast.error("Car not found"));
   }, [id]);
 
   const handleUpdate = async (e) => {
@@ -38,17 +40,14 @@ export default function UpdateCarPage() {
       toast.success("Car updated successfully!");
       router.push("/my-added-cars");
     } catch (err) {
-      const msg = err.response?.data?.message || "Update failed. Please try again.";
-      toast.error(msg);
+      toast.error(err.response?.data?.message || "Update failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   if (!car)
-    return (
-      <div className="flex justify-center py-24"><div className="spinner" /></div>
-    );
+    return <div className="flex justify-center py-24"><div className="spinner" /></div>;
 
   return (
     <div className="py-10 max-w-2xl mx-auto px-4">
@@ -71,10 +70,10 @@ export default function UpdateCarPage() {
             <div>
               <label className={LABEL}>Car Type</label>
               <select name="type" defaultValue={car.type} className={INPUT}>
-                <option>SUV</option>
-                <option>Sedan</option>
-                <option>Hatchback</option>
-                <option>Luxury</option>
+                <option value="SUV">SUV</option>
+                <option value="Sedan">Sedan</option>
+                <option value="Hatchback">Hatchback</option>
+                <option value="Luxury">Luxury</option>
               </select>
             </div>
             <div>
@@ -101,14 +100,14 @@ export default function UpdateCarPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all"
+              className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold text-sm hover:bg-gray-200"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all disabled:opacity-60"
+              className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 disabled:opacity-60"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
