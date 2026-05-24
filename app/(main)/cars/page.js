@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/axios";
-import CarCard from "@/components/CarCard";
+import axios from '../../../lib/axios';
+import CarCard from '../../../components/CarCard';
+
 import { FaSearch } from "react-icons/fa";
 import { BsSortDown } from "react-icons/bs";
 

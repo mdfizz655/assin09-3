@@ -1,7 +1,8 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { authApi } from "@/lib/axios";
+import axios from '../../../lib/axios';
+
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 

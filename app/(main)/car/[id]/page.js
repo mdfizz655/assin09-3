@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { api, authApi } from "@/lib/axios";
+import axios from '../../../../lib/axios';
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { FaUserFriends, FaMapMarkerAlt, FaCogs, FaGasPump, FaStar } from "react-icons/fa";
