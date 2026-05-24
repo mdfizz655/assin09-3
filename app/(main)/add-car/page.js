@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { authApi } from "../../../lib/axios"; // পাথ চেক করুন
+import { authApi } from "../../../lib/axios"; // পাথটি নিশ্চিত করুন
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -12,34 +12,32 @@ export default function AddCarPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!session) return toast.error("Please login first");
+    if (!session) return toast.error("Please Login first!");
 
     setLoading(true);
     const form = e.target;
     
     const carData = {
       name: form.name.value,
-      dailyPrice: parseFloat(form.price.value),
+      dailyPrice: Number(form.price.value), // Number এ কনভার্ট করা জরুরি
       type: form.type.value,
       image: form.image.value,
-      capacity: parseInt(form.capacity.value),
+      capacity: Number(form.capacity.value), // Number এ কনভার্ট করা জরুরি
       location: form.location.value,
       description: form.description.value,
-      availability: form.availability.value,
-      ownerEmail: session.user.email, // মালিকের ইমেইল পাঠানো জরুরি
+      availability: "Available",
+      ownerEmail: session.user.email,
       booking_count: 0
     };
 
     try {
-      // টোকেন সহ রিকোয়েস্ট পাঠানো হচ্ছে
       const res = await authApi(session.accessToken).post('/cars', carData);
       if (res.data.insertedId) {
         toast.success("Car added successfully!");
         router.push("/my-added-cars");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to add car. Check console.");
+      toast.error(err.response?.data?.message || "Failed to add car");
     } finally {
       setLoading(false);
     }
@@ -47,29 +45,23 @@ export default function AddCarPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">Add a New Car</h1>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-        <input name="name" placeholder="Car Name" className="border p-3 rounded-xl" required />
-        <input name="price" type="number" placeholder="Price Per Day ($)" className="border p-3 rounded-xl" required />
-        <select name="type" className="border p-3 rounded-xl">
-          <option value="SUV">SUV</option>
-          <option value="Sedan">Sedan</option>
-          <option value="Hatchback">Hatchback</option>
-          <option value="Luxury">Luxury</option>
-        </select>
-        <input name="capacity" type="number" placeholder="Seat Capacity" className="border p-3 rounded-xl" required />
-        <input name="location" placeholder="Pickup Location" className="border p-3 rounded-xl" required />
-        <select name="availability" className="border p-3 rounded-xl">
-          <option value="Available">Available</option>
-          <option value="Unavailable">Unavailable</option>
-        </select>
-        <input name="image" placeholder="Image URL" className="border p-3 rounded-xl" required />
-        <textarea name="description" placeholder="Description" className="border p-3 rounded-xl h-32" required></textarea>
-        
-        <button disabled={loading} className="bg-blue-600 text-white py-3 rounded-xl font-bold">
-          {loading ? "Adding..." : "List Your Car"}
-        </button>
-      </form>
+       <h1 className="text-2xl font-bold mb-6">Add a New Car</h1>
+       <form onSubmit={handleSubmit} className="space-y-4">
+          <input name="name" placeholder="Car Name" className="w-full border p-3 rounded-xl" required />
+          <input name="price" type="number" placeholder="Price/Day" className="w-full border p-3 rounded-xl" required />
+          <select name="type" className="w-full border p-3 rounded-xl">
+             <option value="SUV">SUV</option>
+             <option value="Sedan">Sedan</option>
+             <option value="Luxury">Luxury</option>
+          </select>
+          <input name="capacity" type="number" placeholder="Capacity" className="w-full border p-3 rounded-xl" required />
+          <input name="location" placeholder="Location" className="w-full border p-3 rounded-xl" required />
+          <input name="image" placeholder="Image URL" className="w-full border p-3 rounded-xl" required />
+          <textarea name="description" placeholder="Description" className="w-full border p-3 rounded-xl" required />
+          <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">
+             {loading ? "Adding..." : "List Car"}
+          </button>
+       </form>
     </div>
   );
 }
