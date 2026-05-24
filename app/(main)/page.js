@@ -7,8 +7,8 @@ const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https
 async function getCars() {
   try {
     const res = await fetch(`${API_URL}/cars`, {
-      cache: "no-store",
-    });
+  next: { revalidate: 60 },
+});
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data.slice(0, 6) : [];

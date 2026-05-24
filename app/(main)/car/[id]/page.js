@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { authApi } from "../../../lib/axios";
+import { authApi } from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { FaUserFriends, FaMapMarkerAlt, FaCogs, FaGasPump, FaStar } from "react-icons/fa";
@@ -78,7 +78,6 @@ export default function CarDetailsPage() {
 
   return (
     <div className="py-10 px-4 max-w-6xl mx-auto">
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
         <a href="/cars" className="hover:text-blue-600 transition-colors">Cars</a>
         <span>/</span>
@@ -86,7 +85,6 @@ export default function CarDetailsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Image */}
         <div className="relative w-full h-[340px] md:h-[400px] rounded-2xl overflow-hidden shadow-xl bg-gray-100">
           {car.image ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -109,7 +107,6 @@ export default function CarDetailsPage() {
           )}
         </div>
 
-        {/* Info */}
         <div className="flex flex-col justify-between space-y-5">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">{car.name}</h1>
@@ -125,7 +122,6 @@ export default function CarDetailsPage() {
             </div>
           </div>
 
-          {/* Specs */}
           <div className="grid grid-cols-3 gap-3">
             {[
               { icon: <FaUserFriends className="text-blue-600 text-xl mx-auto mb-1" />, label: `${car.capacity} Seats` },
@@ -166,7 +162,6 @@ export default function CarDetailsPage() {
         </div>
       </div>
 
-      {/* Booking Modal */}
       {isModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
           <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl">

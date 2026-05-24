@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { authApi } from "../../../lib/axios";
+import { authApi } from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";

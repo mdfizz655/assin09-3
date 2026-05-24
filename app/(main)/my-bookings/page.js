@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { authApi } from "../../../lib/axios";
+import { authApi } from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
 import { FaCalendarAlt, FaCar, FaTrashAlt } from "react-icons/fa";

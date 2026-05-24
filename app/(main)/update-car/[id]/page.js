@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { api, authApi } from "../../../lib/axios";
+import { api, authApi } from "@/lib/axios";
 import { toast } from "react-hot-toast";
 
 const INPUT = "w-full p-3 text-sm rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all bg-white";
