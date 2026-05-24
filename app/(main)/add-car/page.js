@@ -1,131 +1,75 @@
 "use client";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import axios from '../../../lib/axios';
-
-import { toast } from "react-hot-toast";
 import { useState } from "react";
-
-const INPUT = "w-full p-3 text-sm rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all bg-white";
-const LABEL = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5";
+import { useSession } from "next-auth/react";
+import { authApi } from "../../../lib/axios"; // পাথ চেক করুন
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function AddCarPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleAddCar = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!session) return toast.error("Please login first");
 
+    setLoading(true);
+    const form = e.target;
+    
     const carData = {
-      name:         e.target.name.value.trim(),
-      dailyPrice:   parseFloat(e.target.price.value),
-      type:         e.target.type.value,
-      image:        e.target.image.value.trim(),
-      capacity:     parseInt(e.target.capacity.value),
-      location:     e.target.location.value.trim(),
-      description:  e.target.desc.value.trim(),
-      availability: e.target.availability.value,
-      ownerEmail:   session?.user?.email,
-      ownerName:    session?.user?.name,
+      name: form.name.value,
+      dailyPrice: parseFloat(form.price.value),
+      type: form.type.value,
+      image: form.image.value,
+      capacity: parseInt(form.capacity.value),
+      location: form.location.value,
+      description: form.description.value,
+      availability: form.availability.value,
+      ownerEmail: session.user.email, // মালিকের ইমেইল পাঠানো জরুরি
+      booking_count: 0
     };
 
     try {
-      const res = await authApi(session.accessToken).post("/cars", carData);
+      // টোকেন সহ রিকোয়েস্ট পাঠানো হচ্ছে
+      const res = await authApi(session.accessToken).post('/cars', carData);
       if (res.data.insertedId) {
-        toast.success("Car listed successfully! 🎉");
+        toast.success("Car added successfully!");
         router.push("/my-added-cars");
       }
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to add car. Please try again.";
-      toast.error(msg);
+      console.error(err);
+      toast.error("Failed to add car. Check console.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="py-10 max-w-3xl mx-auto px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900">List a New Car</h1>
-        <p className="text-gray-500 text-sm mt-1">Fill in the details to add your car to the fleet</p>
-      </div>
-
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <form onSubmit={handleAddCar} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-          <div>
-            <label className={LABEL}>Car Model *</label>
-            <input type="text" name="name" required placeholder="e.g. Toyota Camry 2023" className={INPUT} />
-          </div>
-
-          <div>
-            <label className={LABEL}>Price Per Day ($) *</label>
-            <input type="number" name="price" required min="1" placeholder="e.g. 75" className={INPUT} />
-          </div>
-
-          <div>
-            <label className={LABEL}>Car Type *</label>
-            <select name="type" className={INPUT}>
-              <option>SUV</option>
-              <option>Sedan</option>
-              <option>Hatchback</option>
-              <option>Luxury</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={LABEL}>Seat Capacity *</label>
-            <input type="number" name="capacity" required min="1" max="20" placeholder="e.g. 5" className={INPUT} />
-          </div>
-
-          <div>
-            <label className={LABEL}>Pickup Location *</label>
-            <input type="text" name="location" required placeholder="e.g. New York, USA" className={INPUT} />
-          </div>
-
-          <div>
-            <label className={LABEL}>Availability *</label>
-            <select name="availability" className={INPUT}>
-              <option value="Available">Available</option>
-              <option value="Unavailable">Unavailable</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <label className={LABEL}>Image URL *</label>
-            <input
-              type="url" name="image" required
-              placeholder="https://i.ibb.co/your-car-image.jpg"
-              className={INPUT}
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Use <a href="https://imgbb.com" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">imgbb.com</a> or <a href="https://postimages.org" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">postimages.org</a> to host your image
-            </p>
-          </div>
-
-          <div className="md:col-span-2">
-            <label className={LABEL}>Description</label>
-            <textarea
-              name="desc"
-              rows="4"
-              placeholder="Describe your car — features, condition, special rules..."
-              className={`${INPUT} resize-none`}
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
-            >
-              {loading ? "Listing car..." : "✓ List Your Car"}
-            </button>
-          </div>
-        </form>
-      </div>
+    <div className="max-w-2xl mx-auto py-10 px-4">
+      <h1 className="text-2xl font-bold mb-6">Add a New Car</h1>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
+        <input name="name" placeholder="Car Name" className="border p-3 rounded-xl" required />
+        <input name="price" type="number" placeholder="Price Per Day ($)" className="border p-3 rounded-xl" required />
+        <select name="type" className="border p-3 rounded-xl">
+          <option value="SUV">SUV</option>
+          <option value="Sedan">Sedan</option>
+          <option value="Hatchback">Hatchback</option>
+          <option value="Luxury">Luxury</option>
+        </select>
+        <input name="capacity" type="number" placeholder="Seat Capacity" className="border p-3 rounded-xl" required />
+        <input name="location" placeholder="Pickup Location" className="border p-3 rounded-xl" required />
+        <select name="availability" className="border p-3 rounded-xl">
+          <option value="Available">Available</option>
+          <option value="Unavailable">Unavailable</option>
+        </select>
+        <input name="image" placeholder="Image URL" className="border p-3 rounded-xl" required />
+        <textarea name="description" placeholder="Description" className="border p-3 rounded-xl h-32" required></textarea>
+        
+        <button disabled={loading} className="bg-blue-600 text-white py-3 rounded-xl font-bold">
+          {loading ? "Adding..." : "List Your Car"}
+        </button>
+      </form>
     </div>
   );
 }
