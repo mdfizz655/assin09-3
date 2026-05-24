@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import { FiEye, FiEyeOff, FiCheckCircle, FiXCircle } from "react-icons/fi";
 
-// পাথগুলো ম্যানুয়ালি ঠিক করা হলো যাতে Vercel বিল্ড ফেইল না করে
+
 import { api } from "../../lib/axios"; 
 
 function Rule({ ok, text }) {
