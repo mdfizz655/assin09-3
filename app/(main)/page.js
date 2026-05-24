@@ -1,12 +1,17 @@
-import { api } from "@/lib/axios";
 import CarCard from "@/components/CarCard";
 import Link from "next/link";
 import { FaShieldAlt, FaHeadset, FaWallet } from "react-icons/fa";
 
+const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://server09.onrender.com";
+
 async function getCars() {
   try {
-    const res = await api.get("/cars");
-    return res.data.slice(0, 6);
+    const res = await fetch(`${API_URL}/cars`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data.slice(0, 6) : [];
   } catch {
     return [];
   }
