@@ -1,14 +1,14 @@
-# 🚗 DriveFleet — Premium Car Rental Platform
+# DriveFleet — Premium Car Rental Platform
 
-Live Site: [https://your-app.vercel.app](https://your-app.vercel.app)
+Live Site: https://assin09-3.vercel.app/
 
 ## Features
 
-- 🔐 **Secure Authentication** — Email/password login with JWT, Google OAuth via NextAuth.js, HTTPOnly cookie support
-- 🚘 **Full Car Management** — Add, update, delete your car listings with image upload support
-- 📅 **Booking System** — Book any car with driver option and special notes; view and cancel your bookings
-- 🔍 **Search & Filter** — Search by car name using MongoDB `$regex`, filter by car type (SUV, Sedan, etc.), sort by price
-- 📱 **Fully Responsive** — Optimized for mobile, tablet, and desktop with clean modern UI
+- **Secure Authentication** — Email/password login with JWT, Google OAuth via NextAuth.js, HTTPOnly cookie support
+- **Full Car Management** — Add, update, delete your car listings with image upload support
+-  **Booking System** — Book any car with driver option and special notes; view and cancel your bookings
+- **Search & Filter** — Search by car name using MongoDB `$regex`, filter by car type (SUV, Sedan, etc.), sort by price
+-**Fully Responsive** — Optimized for mobile, tablet, and desktop with clean modern UI
 
 ## Tech Stack
 
